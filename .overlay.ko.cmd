@@ -1,0 +1,1 @@
+cmd_/home/dai/ubuntu-xenial/fs/overlayfs/overlay.ko := ld -r -m elf_x86_64 -T ./scripts/module-common.lds --build-id  -o /home/dai/ubuntu-xenial/fs/overlayfs/overlay.ko /home/dai/ubuntu-xenial/fs/overlayfs/overlay.o /home/dai/ubuntu-xenial/fs/overlayfs/overlay.mod.o
