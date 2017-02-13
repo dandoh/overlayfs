@@ -31,6 +31,7 @@ __attribute__((section("__versions"))) = {
 	{ 0x4516a674, __VMLINUX_SYMBOL_STR(vfs_link) },
 	{ 0x19f462ab, __VMLINUX_SYMBOL_STR(kfree_call_rcu) },
 	{ 0x2adb3a2, __VMLINUX_SYMBOL_STR(seq_escape) },
+	{ 0x222b38b6, __VMLINUX_SYMBOL_STR(generic_file_open) },
 	{ 0xacf4d843, __VMLINUX_SYMBOL_STR(match_strdup) },
 	{ 0xfc825863, __VMLINUX_SYMBOL_STR(vfs_llseek) },
 	{ 0xbe2f9314, __VMLINUX_SYMBOL_STR(touch_atime) },
@@ -50,6 +51,7 @@ __attribute__((section("__versions"))) = {
 	{ 0x352842aa, __VMLINUX_SYMBOL_STR(mutex_lock_killable) },
 	{ 0x2c7e0dad, __VMLINUX_SYMBOL_STR(vfs_rmdir) },
 	{ 0x88bc711d, __VMLINUX_SYMBOL_STR(unlock_rename) },
+	{ 0x763f6ebe, __VMLINUX_SYMBOL_STR(vfs_read) },
 	{ 0xd0dfa012, __VMLINUX_SYMBOL_STR(kern_path) },
 	{ 0x391afe42, __VMLINUX_SYMBOL_STR(current_task) },
 	{ 0x27e1a049, __VMLINUX_SYMBOL_STR(printk) },
@@ -105,6 +107,7 @@ __attribute__((section("__versions"))) = {
 	{ 0x9c6ad395, __VMLINUX_SYMBOL_STR(revert_creds) },
 	{ 0xdcb84fcc, __VMLINUX_SYMBOL_STR(vfs_listxattr) },
 	{ 0x8ddc7ee1, __VMLINUX_SYMBOL_STR(vfs_removexattr) },
+	{ 0xab132e4b, __VMLINUX_SYMBOL_STR(vfs_write) },
 	{ 0x4c101f8b, __VMLINUX_SYMBOL_STR(vfs_fsync_range) },
 	{ 0x7c2d098f, __VMLINUX_SYMBOL_STR(krealloc) },
 };
@@ -115,4 +118,4 @@ __attribute__((section(".modinfo"))) =
 "depends=";
 
 
-MODULE_INFO(srcversion, "0B3D6723476322D2ADDC9B2");
+MODULE_INFO(srcversion, "C52D1F0BB6EC92029B959E2");

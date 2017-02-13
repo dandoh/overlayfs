@@ -1279,6 +1279,7 @@ static int __init ovl_init(void)
 {
 	int ret;
 
+	printk("Call init overlay");
 	if (IS_ENABLED(CONFIG_OVERLAY_FS_V1)) {
 		ret = register_filesystem(&ovl_v1_fs_type);
 		if (ret)
@@ -1290,6 +1291,7 @@ static int __init ovl_init(void)
 
 static void __exit ovl_exit(void)
 {
+	printk("Call unregister overlay");
 	unregister_filesystem(&ovl_fs_type);
 
 	if (IS_ENABLED(CONFIG_OVERLAY_FS_V1))

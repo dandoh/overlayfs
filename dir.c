@@ -486,17 +486,20 @@ static int ovl_create_object(struct dentry *dentry, int mode, dev_t rdev,
 static int ovl_create(struct inode *dir, struct dentry *dentry, umode_t mode,
 		      bool excl)
 {
+	printk("Calling ovl_create \n");
 	return ovl_create_object(dentry, (mode & 07777) | S_IFREG, 0, NULL);
 }
 
 static int ovl_mkdir(struct inode *dir, struct dentry *dentry, umode_t mode)
 {
+	printk("Calling ovl_mkdir \n");
 	return ovl_create_object(dentry, (mode & 07777) | S_IFDIR, 0, NULL);
 }
 
 static int ovl_mknod(struct inode *dir, struct dentry *dentry, umode_t mode,
 		     dev_t rdev)
 {
+	printk("Making new node \n");
 	/* Don't allow creation of "whiteout" on overlay */
 	if (S_ISCHR(mode) && rdev == WHITEOUT_DEV)
 		return -EPERM;

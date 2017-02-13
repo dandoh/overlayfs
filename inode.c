@@ -420,6 +420,7 @@ struct inode *ovl_new_inode(struct super_block *sb, umode_t mode,
 
 	switch (mode) {
 	case S_IFDIR:
+		printk("Create new inode for dir\n");
 		inode->i_private = oe;
 		inode->i_op = &ovl_dir_inode_operations;
 		inode->i_fop = &ovl_dir_operations;
@@ -430,6 +431,10 @@ struct inode *ovl_new_inode(struct super_block *sb, umode_t mode,
 		break;
 
 	case S_IFREG:
+		printk("Create new inode for regular file \n");
+		inode->i_fop = &ovl_file_operations;
+		inode->i_op = &ovl_file_inode_operations;
+		break;
 	case S_IFSOCK:
 	case S_IFBLK:
 	case S_IFCHR:
