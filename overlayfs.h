@@ -200,9 +200,9 @@ void ovl_cache_free(struct list_head *list);
 
 /* file.c */
 extern const struct file_operations ovl_file_operations;
-ssize_t ovl_read(struct file *, char __user *, size_t, loff_t *);
-ssize_t ovl_write(struct file *, const char __user *, size_t, loff_t *);
-int ovl_open(struct inode *, struct file *);
+//ssize_t ovl_read(struct file *, char __user *, size_t, loff_t *);
+//ssize_t ovl_write(struct file *, const char __user *, size_t, loff_t *);
+//int ovl_open(struct inode *, struct file *);
 
 //ssize_t ovl_read_iter(struct kiocb *, struct iov_iter *);
 //ssize_t ovl_write_iter(struct kiocb *, struct iov_iter *);
@@ -240,3 +240,6 @@ int ovl_copy_up_one(struct dentry *parent, struct dentry *dentry,
 		    struct path *lowerpath, struct kstat *stat);
 int ovl_copy_xattr(struct dentry *old, struct dentry *new);
 int ovl_set_attr(struct dentry *upper, struct kstat *stat);
+
+/* debug.c */
+void print_dentry_info(struct dentry *dentry);

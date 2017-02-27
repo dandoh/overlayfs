@@ -1,1 +1,1 @@
-cmd_/root/overlayfs/overlay.o := ld -m elf_x86_64   -r -o /root/overlayfs/overlay.o /root/overlayfs/super.o /root/overlayfs/inode.o /root/overlayfs/dir.o /root/overlayfs/readdir.o /root/overlayfs/copy_up.o /root/overlayfs/file.o 
+cmd_/root/data/overlayfs/overlay.o := ld -m elf_x86_64   -r -o /root/data/overlayfs/overlay.o /root/data/overlayfs/super.o /root/data/overlayfs/inode.o /root/data/overlayfs/dir.o /root/data/overlayfs/readdir.o /root/data/overlayfs/copy_up.o /root/data/overlayfs/file.o /root/data/overlayfs/debug.o 

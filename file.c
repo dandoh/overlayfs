@@ -19,11 +19,6 @@
 #include "overlayfs.h"
 
 
-const struct file_operations ovl_file_operations = {
-	.read		= ovl_read,
-	.write = ovl_write,
-	.open = ovl_open,
-};
 
 
 ssize_t ovl_read(struct file *file, char __user *user, size_t size, loff_t *loff_t) {
@@ -41,6 +36,12 @@ int ovl_open(struct inode *inode, struct file *file) {
 	printk("Calling open file\n");
 	return generic_file_open(inode, file);
 }
+
+const struct file_operations ovl_file_operations = {
+	.read		= ovl_read,
+	.write = ovl_write,
+	.open = ovl_open,
+};
 //ssize_t ovl_read_iter(struct kiocb *kiocb, struct iov_iter *iov_iter){
 //	printk("Calling read iter\n");
 //	return vfs_read_iter(kiocb, iov_iter);

@@ -512,7 +512,12 @@ static int ovl_dir_open(struct inode *inode, struct file *file)
 		return -ENOMEM;
 
 	type = ovl_path_real(file->f_path.dentry, &realpath);
+	printk("Path of file: \n");
+	print_dentry_info(file->f_path.dentry);
+	//printk("Realpath : %s \n", realpath.dentry->d_name.name);
 	realfile = ovl_path_open(&realpath, file->f_flags);
+	printk("Real path: \n");
+	print_dentry_info(realpath.dentry);
 	if (IS_ERR(realfile)) {
 		kfree(od);
 		return PTR_ERR(realfile);

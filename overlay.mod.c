@@ -65,6 +65,7 @@ __attribute__((section("__versions"))) = {
 	{ 0x55bf8d94, __VMLINUX_SYMBOL_STR(vfs_whiteout) },
 	{ 0x9e2c81e8, __VMLINUX_SYMBOL_STR(fput) },
 	{ 0x721db075, __VMLINUX_SYMBOL_STR(prepare_creds) },
+	{ 0x61651be, __VMLINUX_SYMBOL_STR(strcat) },
 	{ 0xdc56ec04, __VMLINUX_SYMBOL_STR(mntput) },
 	{ 0xca7a05a1, __VMLINUX_SYMBOL_STR(__check_sticky) },
 	{ 0x6bf3b471, __VMLINUX_SYMBOL_STR(mnt_want_write) },
@@ -110,6 +111,7 @@ __attribute__((section("__versions"))) = {
 	{ 0xab132e4b, __VMLINUX_SYMBOL_STR(vfs_write) },
 	{ 0x4c101f8b, __VMLINUX_SYMBOL_STR(vfs_fsync_range) },
 	{ 0x7c2d098f, __VMLINUX_SYMBOL_STR(krealloc) },
+	{ 0xe914e41e, __VMLINUX_SYMBOL_STR(strcpy) },
 };
 
 static const char __module_depends[]
@@ -118,4 +120,4 @@ __attribute__((section(".modinfo"))) =
 "depends=";
 
 
-MODULE_INFO(srcversion, "C52D1F0BB6EC92029B959E2");
+MODULE_INFO(srcversion, "5ED32387C9A2782BC810769");

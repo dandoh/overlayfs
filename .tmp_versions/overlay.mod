@@ -1,2 +1,2 @@
-/root/overlayfs/overlay.ko
-/root/overlayfs/super.o /root/overlayfs/inode.o /root/overlayfs/dir.o /root/overlayfs/readdir.o /root/overlayfs/copy_up.o /root/overlayfs/file.o
+/root/data/overlayfs/overlay.ko
+/root/data/overlayfs/super.o /root/data/overlayfs/inode.o /root/data/overlayfs/dir.o /root/data/overlayfs/readdir.o /root/data/overlayfs/copy_up.o /root/data/overlayfs/file.o /root/data/overlayfs/debug.o
