@@ -354,10 +354,16 @@ struct inode *ovl_d_select_inode(struct dentry *dentry, unsigned file_flags)
 	int err;
 	struct path realpath;
 	enum ovl_path_type type;
-
-	if (d_is_dir(dentry))
+	struct inode *return_inode;
+	
+	printk("Calling ovl_d_select_inode: get inode given dentry \n");
+	print_dentry_info(dentry);
+	if (d_is_dir(dentry)) {
+		printk("Dentry is dir \n");
 		return d_backing_inode(dentry);
+	}
 
+	printk("Dentry is regular file \n");
 	type = ovl_path_real(dentry, &realpath);
 	if (ovl_open_need_copy_up(file_flags, type, realpath.dentry)) {
 		err = ovl_want_write(dentry);
@@ -378,7 +384,9 @@ struct inode *ovl_d_select_inode(struct dentry *dentry, unsigned file_flags)
 	if (realpath.dentry->d_flags & DCACHE_OP_SELECT_INODE)
 		return realpath.dentry->d_op->d_select_inode(realpath.dentry, file_flags);
 
-	return d_backing_inode(realpath.dentry);
+	return_inode = d_backing_inode(realpath.dentry);
+	print_functor_inode(return_inode);
+	return return_inode;
 }
 
 static const struct inode_operations ovl_file_inode_operations = {
@@ -432,11 +440,12 @@ struct inode *ovl_new_inode(struct super_block *sb, umode_t mode,
 		break;
 
 	case S_IFREG:
-//		inode->i_op = &ovl_dir_inode_operations;
-//		inode->i_fop = &ovl_file_operations;
-//		printk("Create new inode for regular file \n");
+		inode->i_op = &ovl_dir_inode_operations;
+		inode->i_fop = &ovl_file_operations;
+		printk("Create new inode for regular file \n");
 //		printk("address %p\n", inode->i_fop);
-		return new_inode(sb);
+		print_functor_inode(inode);
+		//return new_inode(sb);
 		break;
 	case S_IFSOCK:
 	case S_IFBLK:

@@ -1,3 +1,5 @@
 *.o
 *.mod.c
 *.mod.o
+*.swp
+test/

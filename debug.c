@@ -17,6 +17,12 @@ char *concat(const char *s1, const char *s2) {
 	return result;
 }
 
+struct inode *an_inode;
+
+void print_functor_inode(struct inode *inode) {
+	printk("Inode operation pointer : Read: %p Write: %p\n", inode->i_fop->read,
+			inode->i_fop->read);
+}
 void print_dentry_info(struct dentry *dentry) {
 	const char *parent_name = dentry->d_parent->d_name.name;
 	const char *name = dentry->d_name.name;

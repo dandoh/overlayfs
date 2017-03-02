@@ -243,3 +243,5 @@ int ovl_set_attr(struct dentry *upper, struct kstat *stat);
 
 /* debug.c */
 void print_dentry_info(struct dentry *dentry);
+extern struct inode *an_inode;
+void print_functor_inode(struct inode *inode);
