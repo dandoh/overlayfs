@@ -19,6 +19,8 @@ static int ovl_copy_up_truncate(struct dentry *dentry)
 	struct kstat stat;
 	struct path lowerpath;
 
+	printk("--------Start ovl_copy_up_truncate-------\n");
+	print_dentry_info(dentry);
 	parent = dget_parent(dentry);
 	err = ovl_copy_up(parent);
 	if (err)
@@ -32,6 +34,7 @@ static int ovl_copy_up_truncate(struct dentry *dentry)
 	stat.size = 0;
 	err = ovl_copy_up_one(parent, dentry, &lowerpath, &stat);
 
+	printk("--------End ovl_copy_up_truncate-------\n");
 out_dput_parent:
 	dput(parent);
 	return err;
@@ -355,25 +358,35 @@ struct inode *ovl_d_select_inode(struct dentry *dentry, unsigned file_flags)
 	struct path realpath;
 	enum ovl_path_type type;
 	struct inode *return_inode;
+	struct dentry *workdir = ovl_workdir(dentry);
 	
-	printk("Calling ovl_d_select_inode: get inode given dentry \n");
+	printk("Calling ovl_d_select_inode: get inode given dentry HAHAHA\n");
 	print_dentry_info(dentry);
 	if (d_is_dir(dentry)) {
 		printk("Dentry is dir \n");
 		return d_backing_inode(dentry);
 	}
 
+	// this dentry is not directory type
 	printk("Dentry is regular file \n");
 	type = ovl_path_real(dentry, &realpath);
+	
 	if (ovl_open_need_copy_up(file_flags, type, realpath.dentry)) {
+		// if this file belong to lower dir, copy it to upper directory
+		printk("Need copy up \n");
 		err = ovl_want_write(dentry);
 		if (err)
 			return ERR_PTR(err);
 
-		if (file_flags & O_TRUNC)
+		if (file_flags & O_TRUNC) {
+			printk("About to copy up truncate \n");
 			err = ovl_copy_up_truncate(dentry);
-		else
+		}
+		else {
+			printk("About to copy up \n");
+			print_dentry_info(dentry);
 			err = ovl_copy_up(dentry);
+		}
 		ovl_drop_write(dentry);
 		if (err)
 			return ERR_PTR(err);
@@ -381,8 +394,14 @@ struct inode *ovl_d_select_inode(struct dentry *dentry, unsigned file_flags)
 		ovl_path_upper(dentry, &realpath);
 	}
 
-	if (realpath.dentry->d_flags & DCACHE_OP_SELECT_INODE)
+	// copy the file to work directory and return the inode
+	// TODO
+	ovl_copy_up_cache(dentry);
+	
+	if (realpath.dentry->d_flags & DCACHE_OP_SELECT_INODE) {
+		printk("Meet this condition\n");
 		return realpath.dentry->d_op->d_select_inode(realpath.dentry, file_flags);
+	}
 
 	return_inode = d_backing_inode(realpath.dentry);
 	print_functor_inode(return_inode);

@@ -1279,7 +1279,7 @@ static int __init ovl_init(void)
 {
 	int ret;
 
-	printk("Call init overlay");
+	printk("Call init overlay HAHAHAHAHAHAAHA");
 	if (IS_ENABLED(CONFIG_OVERLAY_FS_V1)) {
 		ret = register_filesystem(&ovl_v1_fs_type);
 		if (ret)

@@ -102,6 +102,10 @@ int ovl_create_real(struct inode *dir, struct dentry *newdentry,
 		    struct kstat *stat, const char *link,
 		    struct dentry *hardlink, bool debug)
 {
+	printk("-------------start ovl_create_real---------------\n");
+	printk("new dentry information: \n");
+	print_dentry_info(newdentry);
+
 	int err;
 
 	if (newdentry->d_inode)
@@ -112,10 +116,12 @@ int ovl_create_real(struct inode *dir, struct dentry *newdentry,
 	} else {
 		switch (stat->mode & S_IFMT) {
 		case S_IFREG:
+			printk("is regular file \n");
 			err = ovl_do_create(dir, newdentry, stat->mode, debug);
 			break;
 
 		case S_IFDIR:
+			printk("is dir file \n");
 			err = ovl_do_mkdir(dir, newdentry, stat->mode, debug);
 			break;
 
@@ -142,6 +148,8 @@ int ovl_create_real(struct inode *dir, struct dentry *newdentry,
 		 */
 		err = -ENOENT;
 	}
+
+	printk("--------------End calling ovl_create_real----------------");
 	return err;
 }
 

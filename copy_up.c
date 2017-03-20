@@ -84,12 +84,18 @@ out:
 
 static int ovl_copy_up_data(struct path *old, struct path *new, loff_t len)
 {
+
 	struct file *old_file;
 	struct file *new_file;
 	loff_t old_pos = 0;
 	loff_t new_pos = 0;
 	int error = 0;
 
+	printk("--------------------Start copy_up_data-------------\n");
+	printk("old path:\n");
+	print_path_info(old);
+	printk("new path:\n");
+	print_path_info(new);
 	if (len == 0)
 		return 0;
 
@@ -128,6 +134,7 @@ static int ovl_copy_up_data(struct path *old, struct path *new, loff_t len)
 		len -= bytes;
 	}
 
+	printk("--------------------End copy_up_data-------------\n");
 	fput(new_file);
 out_fput:
 	fput(old_file);
@@ -226,12 +233,27 @@ static int ovl_copy_up_locked(struct dentry *workdir, struct dentry *upperdir,
 			      struct dentry *dentry, struct path *lowerpath,
 			      struct kstat *stat, const char *link)
 {
+	/* Copy lowerpath to upperdir, using workder */
+	// workdir : dentry of workdir, maybe workdir is a helper dictectory (root fs)
+	// upperdir : dentry of upper directory where we will copy to (root fs)
+	// dentry : dentry of the file we need to copy up (this overlayfs)
+	// lowerpath : path of the lower file which we will copy from (root fs)
 	struct inode *wdir = workdir->d_inode;
 	struct inode *udir = upperdir->d_inode;
 	struct dentry *newdentry = NULL;
 	struct dentry *upper = NULL;
 	umode_t mode = stat->mode;
 	int err;
+
+	printk("----------Start copy_up_locked----------------\n");
+	printk("workdir: \n");
+	print_dentry_info(workdir);
+	printk("upperdir: \n");
+	print_dentry_info(upperdir);
+	printk("dentry: \n");
+	print_dentry_info(dentry);
+	printk("Lowerpath: \n");
+	print_path_info(lowerpath);
 
 	newdentry = ovl_lookup_temp(workdir, dentry);
 	err = PTR_ERR(newdentry);
@@ -279,6 +301,8 @@ static int ovl_copy_up_locked(struct dentry *workdir, struct dentry *upperdir,
 	ovl_dentry_update(dentry, newdentry);
 	newdentry = NULL;
 
+
+	printk("----------end copy_up_locked----------------\n");
 	/*
 	 * Non-directores become opaque when copied up.
 	 */
@@ -314,11 +338,15 @@ out_cleanup:
 int ovl_copy_up_one(struct dentry *parent, struct dentry *dentry,
 		    struct path *lowerpath, struct kstat *stat)
 {
+	// dentry : the dentry in overlayfs need to be copy
+	// parent : parent of dentry in overlayfs
+	// lowerpath : path to lower file which we will copy from
+	// stat : statistics, attributes of the file we will copy from
 	struct dentry *workdir = ovl_workdir(dentry);
 	int err;
 	struct kstat pstat;
 	struct path parentpath;
-	struct dentry *upperdir;
+	struct dentry *upperdir; // dentry of the upper directory where we will copy to
 	struct dentry *upperdentry;
 	const struct cred *old_cred;
 	struct cred *override_cred;
@@ -327,12 +355,22 @@ int ovl_copy_up_one(struct dentry *parent, struct dentry *dentry,
 	if (WARN_ON(!workdir))
 		return -EROFS;
 
+	printk("---------------Start calling copy up one ----------------\n");
+	printk("Parameter:\n");
+	printk("parent: \n ");
+	print_dentry_info(parent);
+	printk("dentry: \n");
+	print_dentry_info(dentry);
+	printk("lowerpath: \n");
+	print_path_info(lowerpath);
 	err = ovl_dentry_root_may(dentry, lowerpath, MAY_READ);
 	if (err)
 		return err;
 
 	ovl_path_upper(parent, &parentpath);
 	upperdir = parentpath.dentry;
+	printk("upperdir information: \n");
+	print_dentry_info(upperdir);
 
 	err = ovl_dentry_root_may(dentry, &parentpath, MAY_WRITE);
 	if (err)
@@ -360,6 +398,8 @@ int ovl_copy_up_one(struct dentry *parent, struct dentry *dentry,
 		goto out_unlock;
 	}
 	upperdentry = ovl_dentry_upper(dentry);
+	printk("Upper dentry information: \n");
+	print_dentry_info(upperdentry);
 	if (upperdentry) {
 		/* Raced with another copy-up?  Nothing to do, then... */
 		err = 0;
@@ -381,13 +421,19 @@ out_free_link:
 	if (link)
 		free_page((unsigned long) link);
 
+	printk("---------------End calling copy up one ----------------\n");
 	return err;
 }
 
 int ovl_copy_up(struct dentry *dentry)
 {
+	
 	int err;
 
+	printk("---------------Start calling copy_up ----------------\n");
+	printk("parameter: \n");
+	printk("dentry: \n");
+	print_dentry_info(dentry);
 	err = 0;
 	while (!err) {
 		struct dentry *next;
@@ -400,6 +446,8 @@ int ovl_copy_up(struct dentry *dentry)
 			break;
 
 		next = dget(dentry);
+		printk("Next dentry info: \n");
+		print_dentry_info(next);
 		/* find the topmost dentry not yet copied up */
 		for (;;) {
 			parent = dget_parent(next);
@@ -412,7 +460,14 @@ int ovl_copy_up(struct dentry *dentry)
 			next = parent;
 		}
 
+		printk("Next after the for loop: \n");
+		print_dentry_info(next);
+		printk("Parent after the for loop: \n");
+		print_dentry_info(parent);
+
 		ovl_path_lower(next, &lowerpath);
+		printk("Lower path: \n");
+		print_path_info(&lowerpath);
 		err = vfs_getattr(&lowerpath, &stat);
 		if (!err)
 			err = ovl_copy_up_one(parent, next, &lowerpath, &stat);
@@ -421,5 +476,7 @@ int ovl_copy_up(struct dentry *dentry)
 		dput(next);
 	}
 
+	printk("---------------End calling copy_up ----------------\n");
 	return err;
 }
+
