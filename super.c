@@ -132,11 +132,15 @@ enum ovl_path_type ovl_path_real(struct dentry *dentry, struct path *path)
 {
 	enum ovl_path_type type = ovl_path_type(dentry);
 
+	printk("Ovl_path_real input: \n");
+	print_dentry_info(dentry);
 	if (!OVL_TYPE_UPPER(type))
 		ovl_path_lower(dentry, path);
 	else
 		ovl_path_upper(dentry, path);
 
+	printk("Ovl_path_real output: \n");
+	print_path_info(path);
 	return type;
 }
 
