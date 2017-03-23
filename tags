@@ -15,7 +15,7 @@ OVL_TYPE_MERGE	overlayfs.h	21;"	d
 OVL_TYPE_MERGE_OR_LOWER	overlayfs.h	23;"	d
 OVL_TYPE_PURE_UPPER	overlayfs.h	22;"	d
 OVL_TYPE_UPPER	overlayfs.h	20;"	d
-OVL_WORKDIR_NAME	super.c	826;"	d	file:
+OVL_WORKDIR_NAME	super.c	830;"	d	file:
 OVL_XATTR_OPAQUE	overlayfs.h	28;"	d
 OVL_XATTR_PRE_LEN	overlayfs.h	27;"	d
 OVL_XATTR_PRE_NAME	overlayfs.h	26;"	d
@@ -27,8 +27,10 @@ __this_module	overlay.mod.c	/^__visible struct module __this_module$/;"	v	typere
 __upperdentry	super.c	/^	struct dentry *__upperdentry;$/;"	m	struct:ovl_entry	typeref:struct:ovl_entry::dentry	file:
 __used	overlay.mod.c	/^__used$/;"	v	file:
 __used	overlay.mod.c	/^__used$/;"	v	typeref:struct:____versions	file:
+an_inode	debug.c	/^struct inode *an_inode;$/;"	v	typeref:struct:inode
 cache	readdir.c	/^	struct ovl_dir_cache *cache;$/;"	m	struct:ovl_dir_file	typeref:struct:ovl_dir_file::ovl_dir_cache	file:
 cache	super.c	/^	struct ovl_dir_cache *cache;$/;"	m	struct:ovl_entry	typeref:struct:ovl_entry::ovl_dir_cache	file:
+concat	debug.c	/^char *concat(const char *s1, const char *s2) {$/;"	f
 config	super.c	/^	struct ovl_config config;$/;"	m	struct:ovl_fs	typeref:struct:ovl_fs::ovl_config	file:
 cookie	inode.c	/^	void *cookie;$/;"	m	struct:ovl_link_data	file:
 count	readdir.c	/^	int count;$/;"	m	struct:ovl_readdir_data	file:
@@ -60,7 +62,7 @@ node	readdir.c	/^	struct rb_node node;$/;"	m	struct:ovl_cache_entry	typeref:stru
 numlower	super.c	/^	unsigned numlower;$/;"	m	struct:ovl_entry	file:
 numlower	super.c	/^	unsigned numlower;$/;"	m	struct:ovl_fs	file:
 opaque	super.c	/^			bool opaque;$/;"	m	struct:ovl_entry::__anon1::__anon2	file:
-overlay-objs	Makefile	/^overlay-objs := super.o inode.o dir.o readdir.o copy_up.o file.o$/;"	m
+overlay-objs	Makefile	/^overlay-objs := super.o inode.o dir.o readdir.o copy_up.o file.o debug.o$/;"	m
 ovl_alloc_entry	super.c	/^static struct ovl_entry *ovl_alloc_entry(unsigned int numlower)$/;"	f	file:
 ovl_cache_entry	readdir.c	/^struct ovl_cache_entry {$/;"	s	file:
 ovl_cache_entry_add_rb	readdir.c	/^static int ovl_cache_entry_add_rb(struct ovl_readdir_data *rdd,$/;"	f	file:
@@ -159,7 +161,7 @@ ovl_is_opaquedir	super.c	/^static bool ovl_is_opaquedir(struct dentry *dentry)$/
 ovl_is_private_xattr	inode.c	/^static bool ovl_is_private_xattr(const char *name)$/;"	f	file:
 ovl_is_whiteout	super.c	/^bool ovl_is_whiteout(struct dentry *dentry, int is_legacy)$/;"	f
 ovl_is_whiteout_v1	super.c	/^bool ovl_is_whiteout_v1(struct dentry *dentry)$/;"	f
-ovl_is_whiteout_v1	super.c	313;"	d	file:
+ovl_is_whiteout_v1	super.c	317;"	d	file:
 ovl_is_whiteout_v2	super.c	/^bool ovl_is_whiteout_v2(struct dentry *dentry)$/;"	f
 ovl_iterate	readdir.c	/^static int ovl_iterate(struct file *file, struct dir_context *ctx)$/;"	f	file:
 ovl_link	dir.c	/^static int ovl_link(struct dentry *old, struct inode *newdir,$/;"	f	file:
@@ -232,6 +234,9 @@ ovl_workdir	super.c	/^struct dentry *ovl_workdir(struct dentry *dentry)$/;"	f
 ovl_workdir_create	super.c	/^static struct dentry *ovl_workdir_create(struct vfsmount *mnt,$/;"	f	file:
 ovl_workdir_ok	super.c	/^static bool ovl_workdir_ok(struct dentry *workdir, struct dentry *upperdir)$/;"	f	file:
 ovl_write	file.c	/^ssize_t ovl_write(struct file *file, const char __user *user, size_t size, loff_t *loff_t) {$/;"	f
+print_dentry_info	debug.c	/^void print_dentry_info(struct dentry *dentry) {$/;"	f
+print_functor_inode	debug.c	/^void print_functor_inode(struct inode *inode) {$/;"	f
+print_path_info	debug.c	/^void print_path_info(struct path *path) {$/;"	f
 rcu	super.c	/^		struct rcu_head rcu;$/;"	m	union:ovl_entry::__anon1	typeref:struct:ovl_entry::__anon1::rcu_head	file:
 realdentry	inode.c	/^	struct dentry *realdentry;$/;"	m	struct:ovl_link_data	typeref:struct:ovl_link_data::dentry	file:
 realfile	readdir.c	/^	struct file *realfile;$/;"	m	struct:ovl_dir_file	typeref:struct:ovl_dir_file::file	file:

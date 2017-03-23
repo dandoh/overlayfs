@@ -276,6 +276,8 @@ static int ovl_copy_up_locked(struct dentry *workdir, struct dentry *upperdir,
 	if (S_ISREG(stat->mode)) {
 		struct path upperpath;
 		ovl_path_upper(dentry, &upperpath);
+		printk("Not done the copy yet, but here is the upperpath: \n");
+		print_path_info(&upperpath);
 		BUG_ON(upperpath.dentry != NULL);
 		upperpath.dentry = newdentry;
 
@@ -480,3 +482,54 @@ int ovl_copy_up(struct dentry *dentry)
 	return err;
 }
 
+int ovl_copy_up_workdir(struct dentry *dentry)
+{
+	
+	int err;
+
+	print_dentry_info(dentry);
+	err = 0;
+	while (!err) {
+		struct dentry *next;
+		struct dentry *parent;
+		struct path lowerpath;
+		struct kstat stat;
+		enum ovl_path_type type = ovl_path_type(dentry);
+
+		if (OVL_TYPE_UPPER(type))
+			break;
+
+		next = dget(dentry);
+		printk("Next dentry info: \n");
+		print_dentry_info(next);
+		/* find the topmost dentry not yet copied up */
+		for (;;) {
+			parent = dget_parent(next);
+
+			type = ovl_path_type(parent);
+			if (OVL_TYPE_UPPER(type))
+				break;
+
+			dput(next);
+			next = parent;
+		}
+
+		printk("Next after the for loop: \n");
+		print_dentry_info(next);
+		printk("Parent after the for loop: \n");
+		print_dentry_info(parent);
+
+		ovl_path_lower(next, &lowerpath);
+		printk("Lower path: \n");
+		print_path_info(&lowerpath);
+		err = vfs_getattr(&lowerpath, &stat);
+		if (!err)
+			err = ovl_copy_up_one(parent, next, &lowerpath, &stat);
+
+		dput(parent);
+		dput(next);
+	}
+
+	printk("---------------End calling copy_up ----------------\n");
+	return err;
+}
