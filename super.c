@@ -366,6 +366,7 @@ static struct dentry *ovl_d_real(struct dentry *dentry, struct inode *inode)
 {
 	struct dentry *real;
 
+	printk("Calling this son of a bitch!!: \n");
 	if (d_is_dir(dentry)) {
 		if (!inode || inode == d_inode(dentry))
 			return dentry;

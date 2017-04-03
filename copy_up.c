@@ -256,6 +256,8 @@ static int ovl_copy_up_locked(struct dentry *workdir, struct dentry *upperdir,
 	print_path_info(lowerpath);
 
 	newdentry = ovl_lookup_temp(workdir, dentry);
+	printk("Super block of this newdentry :%p \n", newdentry->d_sb);
+	printk("Super block of wdir :%p \n", wdir->i_sb);
 	err = PTR_ERR(newdentry);
 	if (IS_ERR(newdentry))
 		goto out;
@@ -431,12 +433,14 @@ int ovl_copy_up(struct dentry *dentry)
 {
 	
 	int err;
+	int count;
 
 	printk("---------------Start calling copy_up ----------------\n");
 	printk("parameter: \n");
 	printk("dentry: \n");
 	print_dentry_info(dentry);
 	err = 0;
+	count = 0;
 	while (!err) {
 		struct dentry *next;
 		struct dentry *parent;
@@ -444,6 +448,8 @@ int ovl_copy_up(struct dentry *dentry)
 		struct kstat stat;
 		enum ovl_path_type type = ovl_path_type(dentry);
 
+
+		printk("Enter while loop %d-th times \n", count);
 		if (OVL_TYPE_UPPER(type))
 			break;
 
@@ -474,6 +480,7 @@ int ovl_copy_up(struct dentry *dentry)
 		if (!err)
 			err = ovl_copy_up_one(parent, next, &lowerpath, &stat);
 
+		printk("Value of err after while loop: %d \n", err);
 		dput(parent);
 		dput(next);
 	}

@@ -102,11 +102,12 @@ int ovl_create_real(struct inode *dir, struct dentry *newdentry,
 		    struct kstat *stat, const char *link,
 		    struct dentry *hardlink, bool debug)
 {
+	int err;
+
 	printk("-------------start ovl_create_real---------------\n");
 	printk("new dentry information: \n");
 	print_dentry_info(newdentry);
 
-	int err;
 
 	if (newdentry->d_inode)
 		return -ESTALE;

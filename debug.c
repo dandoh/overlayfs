@@ -18,6 +18,7 @@ char *concat(const char *s1, const char *s2) {
 }
 
 struct inode *an_inode;
+struct super_block *a_super_block;
 
 void print_functor_inode(struct inode *inode) {
 	printk("Inode operation pointer : read: %p write: %p read_iter %p write_iter %p\n", inode->i_fop->read,

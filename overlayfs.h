@@ -236,7 +236,6 @@ void ovl_cleanup(struct inode *dir, struct dentry *dentry);
 
 /* copy_up.c */
 int ovl_copy_up(struct dentry *dentry);
-int ovl_copy_up_workdir(struct dentry *dentry);
 int ovl_copy_up_one(struct dentry *parent, struct dentry *dentry,
 		    struct path *lowerpath, struct kstat *stat);
 int ovl_copy_xattr(struct dentry *old, struct dentry *new);
@@ -248,3 +247,12 @@ void print_dentry_info(struct dentry *dentry);
 void print_path_info(struct path *path);
 extern struct inode *an_inode;
 void print_functor_inode(struct inode *inode);
+extern struct super_block *a_super_block; 
+
+/* cache.c */
+struct inode *get_cache_inode(struct dentry *dentry, struct path *upper_path);
+
+
+
+
+

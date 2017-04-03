@@ -41,31 +41,6 @@ out_dput_parent:
 }
 
 
-static int ovl_copy_up_workdir_truncate(struct dentry *dentry)
-{
-	int err;
-	struct dentry *parent;
-	struct kstat stat;
-	struct path lowerpath;
-
-	parent = dget_parent(dentry);
-	err = ovl_copy_up_workdir(parent);
-	if (err)
-		goto out_dput_parent;
-
-	ovl_path_lower(dentry, &lowerpath);
-	err = vfs_getattr(&lowerpath, &stat);
-	if (err)
-		goto out_dput_parent;
-
-	stat.size = 0;
-	err = ovl_copy_up_one(parent, dentry, &lowerpath, &stat);
-
-	printk("--------End ovl_copy_up_truncate-------\n");
-out_dput_parent:
-	dput(parent);
-	return err;
-}
 
 int ovl_setattr(struct dentry *dentry, struct iattr *attr)
 {
@@ -386,6 +361,8 @@ struct inode *ovl_d_select_inode(struct dentry *dentry, unsigned file_flags)
 	enum ovl_path_type type;
 	struct inode *return_inode;
 	struct dentry *workdir = ovl_workdir(dentry);
+
+	printk("Super block of this dentry :%p \n", dentry->d_sb);
 	
 	printk("Calling ovl_d_select_inode: get inode given dentry HAHAHA\n");
 	print_dentry_info(dentry);
@@ -419,26 +396,29 @@ struct inode *ovl_d_select_inode(struct dentry *dentry, unsigned file_flags)
 			return ERR_PTR(err);
 
 		ovl_path_upper(dentry, &realpath);
+		printk("Realpath in: \n");
+		print_path_info(&realpath);
 	}
 
+
+	type = ovl_path_real(dentry, &realpath);
+	printk("Realpath out: \n");
+	print_path_info(&realpath);
 	/*
 	 * now there are two cases : 
 	 * - read request => realpath is path of real lower or upper file
-	 * - write request => realpath is path of lower file (after copy up or not)
+	 * - write request => realpath is path of upper file (after copy up or not)
 	 */
 
+	printk("Came here !!!");
 	if (OVL_TYPE_UPPER(type)) {
 		printk("Upper type ! \n");
+		printk("Came here 2!!!");
 		// TODO - check whether it was cached in workdir
 		// if not, cache it in workdir
-		
+		return get_cache_inode(dentry, &realpath);
 
-		// copy into workdir
-		//err = ovl_copy_up_workdir_truncate(entry);
-		
-		
 		// return the inode of it's cache version inside workdir
-		
 	}
 
 
