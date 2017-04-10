@@ -402,8 +402,6 @@ struct inode *ovl_d_select_inode(struct dentry *dentry, unsigned file_flags)
 
 
 	type = ovl_path_real(dentry, &realpath);
-	printk("Realpath out: \n");
-	print_path_info(&realpath);
 	/*
 	 * now there are two cases : 
 	 * - read request => realpath is path of real lower or upper file

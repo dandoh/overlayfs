@@ -3,6 +3,9 @@
 #include <linux/namei.h>
 #include <linux/xattr.h>
 #include <linux/security.h>
+#include <linux/splice.h>
+#include <linux/file.h>
+#include <linux/uaccess.h>
 #include <linux/cred.h>
 #include <linux/sched.h>
 #include <linux/kernel.h>
@@ -10,7 +13,10 @@
 #include <linux/init.h> 
 #include <linux/mount.h>
 #include <linux/path.h>
+#include <linux/slab.h>
 #include "overlayfs.h"
+
+#define OVL_COPY_UP_CHUNK_SIZE (1 << 20)
 
 char *path_name = "/cache/cache.tmp";
 char *cache_dir = "/cache/";
@@ -21,12 +27,67 @@ struct cache_filename {
 	struct list_head list;
 };
 
+int copy_data_cache(struct path *upper, struct path *cache, loff_t len) {
+	struct file *upper_file;
+	struct file *cache_file;
+	loff_t upper_pos = 0;
+	loff_t cache_pos = 0;
+	int error = 0;
+
+	printk("upper path:\n");
+	print_path_info(upper);
+	printk("cache path:\n");
+	print_path_info(cache);
+	if (len == 0)
+		return 0;
+
+	upper_file = dentry_open(upper, O_LARGEFILE | O_RDONLY, current_cred());
+	if (IS_ERR(upper_file))
+		return PTR_ERR(upper_file);
+
+	cache_file = dentry_open(cache, O_LARGEFILE | O_WRONLY, current_cred());
+	if (IS_ERR(cache_file)) {
+		error = PTR_ERR(cache_file);
+		goto out_fput;
+	}
+
+	while (len) {
+		size_t this_len = OVL_COPY_UP_CHUNK_SIZE;
+		long bytes;
+
+		if (len < this_len)
+			this_len = len;
+
+		if (signal_pending_state(TASK_KILLABLE, current)) {
+			error = -EINTR;
+			break;
+		}
+
+		bytes = do_splice_direct(upper_file, &upper_pos,
+					 cache_file, &cache_pos,
+					 this_len, SPLICE_F_MOVE);
+		if (bytes <= 0) {
+			error = bytes;
+			break;
+		}
+		WARN_ON(upper_pos != cache_pos);
+
+		len -= bytes;
+	}
+
+	fput(cache_file);
+out_fput:
+	fput(upper_file);
+	return error;
+}
+
 int copy_upper_cache(struct dentry *parent_cache, 
 		struct dentry *parent_upper, const unsigned char *name) {
 
 	struct inode *parent_cache_inode = parent_cache->d_inode;
 	struct dentry *upper_dentry;
 	struct dentry *cache_dentry;
+	int err = 0;
 	printk("Name: %s \n", name);
 
 	upper_dentry = lookup_one_len(name, parent_upper, strlen(name));
@@ -36,14 +97,15 @@ int copy_upper_cache(struct dentry *parent_cache,
 		printk("Exist before !!!!\n");
 		return 0;
 	} else {
+
+		struct path upper_path;
+		struct path cache_path;
+		struct kstat stat;
+
 		if (!upper_dentry->d_inode) {
 			printk("Some errors occurred\n");
 			return 1;
 		}
-
-		int err;
-		struct path upper_path;
-		struct kstat stat;
 		
 		ovl_path_upper(upper_dentry, &upper_path);
 		err = vfs_getattr(&upper_path, &stat);
@@ -52,15 +114,25 @@ int copy_upper_cache(struct dentry *parent_cache,
 		}
 		// COPY HERE - already had upper path
 		switch (stat.mode & S_IFMT) {
-			case S_IFREG:
+			case S_IFREG: {
+				int buff_len = 200;
+				char buff[buff_len];
+				char *cache_path_str;
+
 				printk("FILE HERE: \n");
 				err = vfs_create(parent_cache_inode, cache_dentry, stat.mode, true);
 				if (err) {
 					printk("Error calling vfs create file\n");
 					return err;
 				}
-				break;
 
+ 				cache_path_str = dentry_path_raw(cache_dentry, buff, buff_len);
+				kern_path(cache_path_str, LOOKUP_FOLLOW, &cache_path);
+
+				copy_data_cache(&upper_path, &cache_path, stat.size);
+				
+				break;
+			}
 			case S_IFDIR:
 				err = vfs_mkdir(parent_cache_inode, cache_dentry, stat.mode);
 				if (err) {
@@ -74,7 +146,7 @@ int copy_upper_cache(struct dentry *parent_cache,
 		}
 	}
 
-	return 0;
+	return err;
 }
 
 /**
@@ -94,11 +166,9 @@ struct dentry *copy_to_cache(struct dentry *dentry) {
 
 	// cache dentry
 	struct dentry *current_parent_cache;
-	struct dentry *cache_temp;
 
 	// upper dentry
 	struct dentry *current_parent_upper;
-	struct dentry *upper_temp;
 
 	printk("\n");
 	while (dentry->d_parent != dentry) {
@@ -145,7 +215,6 @@ struct inode *get_cache_inode(struct dentry *dentry, struct path *upper_path) {
 	struct dentry *cache_dentry;
 	struct dentry *result_dentry; // result after copy to cache 
 	struct path path;
-	int err;
 
 	kern_path(path_name, LOOKUP_FOLLOW, &path);
 	cache_dentry = path.dentry;
