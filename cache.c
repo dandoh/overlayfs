@@ -165,10 +165,10 @@ struct dentry *copy_to_cache(struct dentry *dentry) {
 	struct path cache_path;
 
 	// cache dentry
-	struct dentry *current_parent_cache;
+	struct dentry *current_cache;
 
 	// upper dentry
-	struct dentry *current_parent_upper;
+	struct dentry *current_upper;
 
 	printk("\n");
 	while (dentry->d_parent != dentry) {
@@ -186,8 +186,8 @@ struct dentry *copy_to_cache(struct dentry *dentry) {
 	cache_dentry = cache_path.dentry;
 	cache_inode = cache_dentry->d_inode;
 
-	current_parent_cache = cache_dentry;
-	current_parent_upper = dentry;
+	current_cache = cache_dentry;
+	current_upper = dentry;
 
 	list_for_each(pos, &cache_filename_list) {
 		const unsigned char *name;
@@ -195,38 +195,32 @@ struct dentry *copy_to_cache(struct dentry *dentry) {
 		entry = list_entry(pos, struct cache_filename, list);
 		name = entry->name.name;
 
-		err = copy_upper_cache(current_parent_cache, current_parent_upper, entry->name.name);
+		err = copy_upper_cache(current_cache, current_upper, entry->name.name);
 		if (err) {
 			printk("Error copying to cache");
 			return NULL;
 		}
 
-		current_parent_cache = lookup_one_len(name, current_parent_cache, strlen(name));
-		current_parent_upper = lookup_one_len(name, current_parent_upper, strlen(name));
+		current_cache = lookup_one_len(name, current_cache, strlen(name));
+		current_upper = lookup_one_len(name, current_upper, strlen(name));
 	}
 
-	return 0;
+	return current_cache;
 }
 
 
 
-struct inode *get_cache_inode(struct dentry *dentry, struct path *upper_path) {
-	// copy the file in upper path to cache foler
-	struct dentry *cache_dentry;
+struct inode *get_cache_inode(struct dentry *dentry) {
 	struct dentry *result_dentry; // result after copy to cache 
-	struct path path;
-
-	kern_path(path_name, LOOKUP_FOLLOW, &path);
-	cache_dentry = path.dentry;
-
 	result_dentry = copy_to_cache(dentry);
-//	if (!result_dentry) {
-//		return d_backing_inode(result_dentry);
-//	} else {
-//		return NULL;
-//	}
 
-	return d_backing_inode(cache_dentry);
+	if (result_dentry) {
+		return result_dentry->d_inode;
+	} else {
+		return NULL;
+	}
 }
+
+
 
 

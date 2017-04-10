@@ -360,7 +360,6 @@ struct inode *ovl_d_select_inode(struct dentry *dentry, unsigned file_flags)
 	struct path realpath;
 	enum ovl_path_type type;
 	struct inode *return_inode;
-	struct dentry *workdir = ovl_workdir(dentry);
 
 	printk("Super block of this dentry :%p \n", dentry->d_sb);
 	
@@ -410,13 +409,12 @@ struct inode *ovl_d_select_inode(struct dentry *dentry, unsigned file_flags)
 
 	printk("Came here !!!");
 	if (OVL_TYPE_UPPER(type)) {
-		printk("Upper type ! \n");
-		printk("Came here 2!!!");
-		// TODO - check whether it was cached in workdir
-		// if not, cache it in workdir
-		return get_cache_inode(dentry, &realpath);
+		struct inode *cache_inode;
+		cache_inode = get_cache_inode(dentry);
 
-		// return the inode of it's cache version inside workdir
+		if (cache_inode) {
+			return cache_inode;
+		}
 	}
 
 

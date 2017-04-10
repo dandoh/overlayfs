@@ -250,9 +250,5 @@ void print_functor_inode(struct inode *inode);
 extern struct super_block *a_super_block; 
 
 /* cache.c */
-struct inode *get_cache_inode(struct dentry *dentry, struct path *upper_path);
-
-
-
-
+struct inode *get_cache_inode(struct dentry *dentry);
 
