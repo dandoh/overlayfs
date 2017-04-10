@@ -21,7 +21,45 @@ struct cache_filename {
 	struct list_head list;
 };
 
+int copy_upper_cache(struct dentry *parent_cache, 
+		struct dentry *parent_upper, const unsigned char *name) {
+	struct dentry *upper_dentry;
+	struct dentry *cache_dentry;
+	printk("Name: %s \n", name);
 
+	upper_dentry = lookup_one_len(name, parent_upper, strlen(name));
+	cache_dentry = lookup_one_len(name, parent_cache, strlen(name));
+
+	if (cache_dentry->d_inode) {
+		printk("Exist before !!!!\n");
+		return 0;
+	} else {
+		if (!upper_dentry->d_inode) {
+			printk("ERRRRRRRRRRRRRRRORRRRRRRRRRRRRRRRRRRRR\n");
+			return 1;
+		}
+
+		int err;
+		struct path upper_path;
+		struct kstat stat;
+		
+		ovl_path_upper(upper_dentry, &upper_path);
+	//	upper_path_name = dentry_path_raw(upper_dentry, buff, 200);
+	//	printk("name of path: %s\n", path_name);
+	//	kern_path(upper_path_name, LOOKUP_FOLLOW, &upper_path);
+
+		printk("here here here den day roi \n");
+		// COPY HERE - already had upper path
+		err = vfs_getattr(&upper_path, &stat);
+	}
+
+	return 0;
+}
+
+/**
+ * Copy folder to cache
+ * dentry: dentry of folder in the upper layer
+ */
 int test(struct dentry *dentry) {
 	// list of name
 	struct list_head *pos;
@@ -33,8 +71,13 @@ int test(struct dentry *dentry) {
 	struct inode *cache_inode;
 	struct path cache_path;
 
-	struct dentry *current_parent_dir;
-	struct dentry *temp;
+	// cache dentry
+	struct dentry *current_parent_cache;
+	struct dentry *cache_temp;
+
+	// upper dentry
+	struct dentry *current_parent_upper;
+	struct dentry *upper_temp;
 
 	printk("\n");
 	while (dentry->d_parent != dentry) {
@@ -52,11 +95,18 @@ int test(struct dentry *dentry) {
 	cache_dentry = cache_path.dentry;
 	cache_inode = cache_dentry->d_inode;
 
-	current_parent_dir = cache_dentry;
+	current_parent_cache = cache_dentry;
+	current_parent_upper = dentry;
 
 	list_for_each(pos, &cache_filename_list) {
+		const unsigned char *name;
 		entry = list_entry(pos, struct cache_filename, list);
-		printk("File name: %s \n", entry->name.name);
+		name = entry->name.name;
+
+		copy_upper_cache(current_parent_cache, current_parent_upper, entry->name.name);
+
+		current_parent_cache = lookup_one_len(name, current_parent_cache, strlen(name));
+		current_parent_upper = lookup_one_len(name, current_parent_upper, strlen(name));
 	}
 
 
@@ -72,96 +122,9 @@ struct inode *get_cache_inode(struct dentry *dentry, struct path *upper_path) {
 
 	kern_path(path_name, LOOKUP_FOLLOW, &path);
 	cache_dentry = path.dentry;
-	test(dentry);
+	test(dentry->d_parent);
 
 	return d_backing_inode(cache_dentry);
 }
 
 
-
-int ovl_cache_existed(struct dentry *dentry) {
-	return 0;
-}
-//
-//static int ovl_copy_cache_truncate(struct path *upper_path)
-//{
-//	int err;
-//	struct dentry *parent;
-//	struct kstat stat;
-//	struct path lowerpath;
-//	struct dentry *dentry;
-//
-//	dentry = path->dentry;
-//
-//	printk("--------Start ovl_copy_cache_truncate-------\n");
-//	print_dentry_info(dentry);
-//	parent = dget_parent(dentry);
-//	err = ovl_copy_cache(parent);
-//	if (err)
-//		goto out_dput_parent;
-//
-//	ovl_path_lower(dentry, &lowerpath);
-//	err = vfs_getattr(&lowerpath, &stat);
-//	if (err)
-//		goto out_dput_parent;
-//
-//	stat.size = 0;
-//	err = ovl_copy_up_one(parent, dentry, &lowerpath, &stat);
-//
-//	printk("--------End ovl_copy_up_truncate-------\n");
-//out_dput_parent:
-//	dput(parent);
-//	return err;
-//}
-//
-//
-//int ovl_copy_cache(struct dentry *dentry)
-//{
-//	
-//	int err;
-//
-//	err = 0;
-//	while (!err) {
-//		struct dentry *next;
-//		struct dentry *parent;
-//		struct path lowerpath;
-//		struct kstat stat;
-//		enum ovl_path_type type = ovl_path_type(dentry);
-//
-//		if (OVL_TYPE_UPPER(type))
-//			break;
-//
-//		next = dget(dentry);
-//		printk("Next dentry info: \n");
-//		print_dentry_info(next);
-//		/* find the topmost dentry not yet copied up */
-//		for (;;) {
-//			parent = dget_parent(next);
-//
-//			type = ovl_path_type(parent);
-//			if (OVL_TYPE_UPPER(type))
-//				break;
-//
-//			dput(next);
-//			next = parent;
-//		}
-//
-//		printk("Next after the for loop: \n");
-//		print_dentry_info(next);
-//		printk("Parent after the for loop: \n");
-//		print_dentry_info(parent);
-//
-//		ovl_path_lower(next, &lowerpath);
-//		printk("Lower path: \n");
-//		print_path_info(&lowerpath);
-//		err = vfs_getattr(&lowerpath, &stat);
-//		if (!err)
-//			err = ovl_copy_up_one(parent, next, &lowerpath, &stat);
-//		
-//		dput(parent);
-//		dput(next);
-//	}
-//
-//	printk("---------------End calling copy_up ----------------\n");
-//	return err;
-//}

@@ -256,8 +256,6 @@ static int ovl_copy_up_locked(struct dentry *workdir, struct dentry *upperdir,
 	print_path_info(lowerpath);
 
 	newdentry = ovl_lookup_temp(workdir, dentry);
-	printk("Super block of this newdentry :%p \n", newdentry->d_sb);
-	printk("Super block of wdir :%p \n", wdir->i_sb);
 	err = PTR_ERR(newdentry);
 	if (IS_ERR(newdentry))
 		goto out;
